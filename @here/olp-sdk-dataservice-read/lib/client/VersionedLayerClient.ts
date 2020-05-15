@@ -27,13 +27,17 @@ import {
     ApiName,
     DataRequest,
     DataStoreRequestBuilder,
+    fetchQuadTreeIndex,
+    getTile,
     HRN,
+    mortonCodeFromQuadKey,
     OlpClientSettings,
     PartitionsRequest,
     QuadKeyPartitionsRequest,
     QuadTreeIndexRequest,
     QueryClient,
-    RequestFactory
+    RequestFactory,
+    TileRequest
 } from "..";
 import { MetadataCacheRepository } from "../cache";
 import { FetchOptions } from "./FetchOptions";
@@ -127,6 +131,33 @@ export class VersionedLayerClient {
     }
 
     /**
+     * Fetches data of a tile or its closest ancestor.
+     *
+     * @param request The `TileRequest` instance that contains a complete set
+     * of request parameters.
+     *
+     * @param abortSignal A signal object that allows you to communicate with a request (such as the `fetch` request)
+     * and, if required, abort it using the `AbortController` object.
+     *
+     * @returns The data from the requested partition or its closest ancestor.
+     */
+    async getAggregatedData(
+        request: TileRequest,
+        abortSignal?: AbortSignal
+    ): Promise<Response> {
+        return getTile(
+            request,
+            {
+                catalogHrn: HRN.fromString(this.hrn),
+                layerId: this.layerId,
+                layerType: "versioned",
+                settings: this.settings
+            },
+            abortSignal
+        );
+    }
+
+    /**
      * Fetches partition data using one of the following methods: ID, quadkey, or data handle.
      *
      * @param dataRequest The [[DataRequest]] instance of the configured request parameters.
@@ -152,13 +183,11 @@ export class VersionedLayerClient {
         }
 
         const partitionId = dataRequest.getPartitionId();
-        let usingVersion: number | undefined;
+        let usingVersion = this.version;
         const dataRequestVersion = dataRequest.getVersion();
 
         if (dataRequestVersion !== undefined) {
             usingVersion = dataRequestVersion;
-        } else {
-            usingVersion = this.version;
         }
 
         if (usingVersion === undefined) {
@@ -194,34 +223,41 @@ export class VersionedLayerClient {
 
         const quadKey = dataRequest.getQuadKey();
         if (quadKey) {
-            const quadKeyPartitionsRequest = new QuadKeyPartitionsRequest()
-                .withQuadKey(quadKey)
-                .withVersion(usingVersion);
+            const mortonCode = `${mortonCodeFromQuadKey(quadKey)}`;
+            const noContentError = new HttpError(
+                204,
+                `No dataHandle for quadKey {column: ${quadKey.column}, row: ${quadKey.row}, level: ${quadKey.level}}. HRN: ${this.hrn}`
+            );
 
-            const quadTreeIndexResponse = await this.getPartitions(
-                quadKeyPartitionsRequest
-            ).catch(error => Promise.reject(error));
+            const quadTreeIndexResponse = await fetchQuadTreeIndex({
+                catalogHrn: HRN.fromString(this.hrn),
+                catalogVersion: usingVersion,
+                fetchOptions: dataRequest.getFetchOption(),
+                layerId: this.layerId,
+                layerType: "versioned",
+                quadKey,
+                settings: this.settings,
+                abortSignal,
+                billingTag: dataRequest.getBillingTag()
+            });
 
-            if (
-                quadTreeIndexResponse.status &&
-                quadTreeIndexResponse.status === 400
-            ) {
-                return Promise.reject(quadTreeIndexResponse);
+            if (!quadTreeIndexResponse.subQuads) {
+                return Promise.reject(noContentError);
             }
 
-            return quadTreeIndexResponse.subQuads &&
-                quadTreeIndexResponse.subQuads.length
-                ? this.downloadPartition(
-                      quadTreeIndexResponse.subQuads[0].dataHandle,
-                      abortSignal,
-                      dataRequest.getBillingTag()
-                  )
-                : Promise.reject(
-                      new HttpError(
-                          204,
-                          `No dataHandle for quadKey {column: ${quadKey.column}, row: ${quadKey.row}, level: ${quadKey.level}}. HRN: ${this.hrn}`
-                      )
-                  );
+            const subQuad = quadTreeIndexResponse.subQuads.find(
+                item => item.subQuadKey === mortonCode
+            );
+
+            if (!subQuad) {
+                return Promise.reject(noContentError);
+            }
+
+            return this.downloadPartition(
+                subQuad.dataHandle,
+                abortSignal,
+                dataRequest.getBillingTag()
+            );
         }
 
         return Promise.reject(
