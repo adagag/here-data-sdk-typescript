@@ -17,6 +17,10 @@
  * License-Filename: LICENSE
  */
 
-export * from "./cache";
-export * from "./utils";
-export * from "./client";
+export * from "./DataStoreDownloadManager";
+export * from "./DataStoreRequestBuilder";
+export * from "./DownloadManager";
+export * from "./RequestBuilderFactory";
+export * from "./getEnvLookupUrl";
+export * from "./HRN";
+export * from "./getDataSizeUtil";

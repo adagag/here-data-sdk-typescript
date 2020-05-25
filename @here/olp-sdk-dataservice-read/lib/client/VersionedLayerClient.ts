@@ -38,8 +38,6 @@ import {
 import { MetadataCacheRepository } from "../cache";
 import { FetchOptions } from "./FetchOptions";
 
-// tslint:disable: deprecation
-
 /**
  * Parameters for use to initialize VersionLayerClient.
  */

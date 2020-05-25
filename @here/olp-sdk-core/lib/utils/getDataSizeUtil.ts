@@ -17,14 +17,15 @@
  * License-Filename: LICENSE
  */
 
-/**
- * @deprecated This file will be removed by 10.2020. Please use the same from `@here/olp-sdk-core` package.
- */
-
 const BYTES_IN_NUMBER = 8;
 const BYTES_IN_BOOLEAN = 4;
 
-export function getDataSize(data: any) {
+/**
+ * Calculate memory size of javascript object, it is not an accurate value
+ * @param data. The string or number or boolean or array or object.
+ * @returns The size of value in bytes.
+ */
+export function getDataSize(data: string | number | boolean | object) {
     let bytes = 0;
 
     function sizeOf(obj: any) {
@@ -40,11 +41,11 @@ export function getDataSize(data: any) {
                     bytes += BYTES_IN_BOOLEAN;
                     break;
                 case "object":
-                    const objClass = Object.prototype.toString
-                        .call(obj)
-                        // tslint:disable-next-line: no-magic-numbers
-                        .slice(8, -1);
-                    if (objClass === "Object" || objClass === "Array") {
+                    const objClass = Object.prototype.toString.call(obj);
+                    if (
+                        objClass === "[object Object]" ||
+                        objClass === "[object Array]"
+                    ) {
                         for (const key in obj) {
                             if (!obj.hasOwnProperty(key)) {
                                 continue;

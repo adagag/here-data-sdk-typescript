@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 HERE Europe B.V.
+ * Copyright (C) 2020 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,7 @@
  * License-Filename: LICENSE
  */
 
-/**
- * @deprecated This file will be removed by 10.2020. Please use the same from `@here/olp-sdk-core` package.
- */
-
-import { LRUCache } from "./LRUCache";
+import { getDataSize, LRUCache } from "@here/olp-sdk-core";
 
 /**
  * An in-memory caching instance.
@@ -29,6 +25,7 @@ import { LRUCache } from "./LRUCache";
  * All the repository instances use it for reading or caching information.
  */
 export class KeyValueCache {
+    private readonly BYTES_IN_MB = 1024;
     private readonly cache: LRUCache<string, string>;
     /**
      * Cerates the `KeyValueCache` instance.
@@ -36,7 +33,11 @@ export class KeyValueCache {
      * @return The `KeyValueCache` instance.
      */
     constructor() {
-        this.cache = new LRUCache();
+        const bytesInMegabytes = 1024;
+        this.cache = new LRUCache<string, string>(
+            this.BYTES_IN_MB * 2,
+            getDataSize
+        );
     }
 
     /**
@@ -66,16 +67,6 @@ export class KeyValueCache {
     }
 
     /**
-     * Removes a key-value pair from the cache.
-     *
-     * @param key The key for the value that you want to remove from the cache.
-     * @return True if the operation is successful; false otherwise.
-     */
-    public remove(key: string): boolean {
-        return this.cache.delete(key);
-    }
-
-    /**
      * Clears the cache and removes all stored key-value pairs.
      */
     public clear(): void {
@@ -91,7 +82,7 @@ export class KeyValueCache {
      * @param newCapacity The new capacity of this cache in MB.
      */
     public setCapacity(newCapacity: number): void {
-        this.cache.setCapacity(newCapacity);
+        this.cache.setCapacity(newCapacity * this.BYTES_IN_MB);
     }
 
     /**

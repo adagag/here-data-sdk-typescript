@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 HERE Europe B.V.
+ * Copyright (C) 2020 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */
-
-/**
- * @deprecated This file will be removed by 10.2020. Please use the same from `@here/olp-sdk-core` package.
  */
 
 /**
@@ -61,11 +57,6 @@ export class HRN {
     private static ACCOUNT_POS = 4;
     private static RESOURCE_POS = 5;
     private static ENTRIES_COUNT = HRN.RESOURCE_POS + 1;
-
-    private static RESOURCE_ID_POS = 1;
-    private static RESOURCE_VERSION_POS = 2;
-    private static RESOURCE_TYPE_POS = 3;
-    private static RESOURCE_PARAMS_COUNT = 3;
 
     /**
      * Returns a new HRN from a string representation of an HRN.

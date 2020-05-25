@@ -17,6 +17,10 @@
  * License-Filename: LICENSE
  */
 
+/**
+ * @deprecated This file will be removed by 10.2020. Please use the same from `@here/olp-sdk-core` package.
+ */
+
 import { getDataSize } from "../utils";
 /**
  * Method to assert if flow is not broken.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 HERE Europe B.V.
+ * Copyright (C) 2020 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,6 @@
  * License-Filename: LICENSE
  */
 
-/**
- * @deprecated This file will be removed by 10.2020. Please use the same from `@here/olp-sdk-core` package.
- */
-
-import { HttpError, LookupApi } from "@here/olp-sdk-dataservice-api";
 import {
     ApiCacheRepository,
     ApiName,
@@ -29,7 +24,8 @@ import {
     getEnvLookUpUrl,
     HRN,
     OlpClientSettings
-} from "..";
+} from "@here/olp-sdk-core";
+import { HttpError, LookupApi } from "@here/olp-sdk-dataservice-api";
 
 const MILLISECONDS_IN_SECOND = 1000;
 

@@ -17,6 +17,4 @@
  * License-Filename: LICENSE
  */
 
-export * from "./cache";
-export * from "./utils";
-export * from "./client";
+export const LIB_VERSION = "1.5.0";

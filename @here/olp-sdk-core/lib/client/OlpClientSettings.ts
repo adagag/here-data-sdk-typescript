@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 HERE Europe B.V.
+ * Copyright (C) 2020 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
  * License-Filename: LICENSE
  */
 
-/**
- * @deprecated This file will be removed by 10.2020. Please use the same from `@here/olp-sdk-core` package.
- */
-
-import { DataStoreDownloadManager, DownloadManager, KeyValueCache } from "..";
-import { EnvironmentName } from "../utils";
+import {
+    DataStoreDownloadManager,
+    DownloadManager,
+    EnvironmentName,
+    KeyValueCache
+} from "@here/olp-sdk-core";
 
 /**
  * Parameters used to construct the [[OlpClientSettings]] class.
